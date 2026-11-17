@@ -301,19 +301,19 @@
             <p class="text-[11px] sm:text-xs text-amber-100/80 mb-2.5 sm:mb-4">달콤한 크리스마스 마법이 담긴 진저브레드 쿠키예요.</p>
 
             <!-- 완성된 쿠키 카드 미리보기 -->
-            <div class="bg-[#0d2218] p-3 sm:p-4 rounded-2xl shadow-inner border-4 border-amber-400/80 mb-3 sm:mb-4 relative overflow-hidden">
-                <div class="text-amber-300 font-jua text-xs sm:text-sm tracking-widest mb-1.5 drop-shadow">MERRY CHRISTMAS</div>
-                <img id="final-cookie-img" src="" alt="눈 내리는 밤의 진저브레드 쿠키" class="w-48 h-48 sm:w-64 sm:h-64 mx-auto object-contain rounded-xl shadow-lg border border-amber-300/20" />
-                <div class="mt-2 sm:mt-2.5">
+            <div class="bg-[#fdf6e7] p-3.5 sm:p-4 rounded-2xl shadow-inner border-4 border-red-700/80 mb-3 relative overflow-hidden">
+                <div class="text-red-700 font-jua text-xs sm:text-sm tracking-widest mb-1.5">MERRY CHRISTMAS</div>
+                <img id="final-cookie-img" src="" alt="완성된 진저브레드 쿠키" class="w-52 h-52 sm:w-64 sm:h-64 mx-auto object-cover rounded-xl drop-shadow-lg select-auto" />
+                <div class="mt-2.5">
                     <input id="cookie-message" type="text" maxlength="22" value="따뜻한 크리스마스 보내세요 🎄" 
-                        class="w-full text-center bg-white/10 rounded-xl px-2 py-1.5 border border-amber-300/30 text-amber-100 font-jua text-sm sm:text-base focus:outline-none focus:border-amber-400" 
+                        class="w-full text-center bg-transparent border-b border-dashed border-amber-800/40 text-stone-800 font-jua text-sm sm:text-base focus:outline-none focus:border-red-600 pb-0.5" 
                         placeholder="메시지를 입력해보세요!" />
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 mb-2">
-                <button id="share-btn" class="bg-sky-600 hover:bg-sky-500 text-white font-jua py-2.5 sm:py-3 px-3 rounded-2xl shadow-md flex items-center justify-center gap-1.5 transition active:scale-95 text-sm sm:text-base">
-                    <span>💌</span> 친구에게 공유
+            <p class="text-[11px] text-amber-200/85 mb-3">💡 저장이 바로 안 되면 위 카드를 꾹 눌러 '사진에 저장'해 주세요!</p>
+
+            <div class="grid grid-cols-2 gap-2.5 mb-2.5">
                 </button>
                 <button id="download-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-jua py-2.5 sm:py-3 px-3 rounded-2xl shadow-md flex items-center justify-center gap-1.5 transition active:scale-95 text-sm sm:text-base">
                     <span>💾</span> 이미지 저장
@@ -1099,242 +1099,218 @@
         // ==========================================
         const resultModal = document.getElementById('result-modal');
         const finalCookieImg = document.getElementById('final-cookie-img');
+        const cookieMessageInput = document.getElementById('cookie-message');
 
-        // 눈 내리고 눈 쌓인 크리스마스 밤 풍경 위에 쿠키가 놓인 배경 렌더링 헬퍼
-        function drawCookieOnSnowyNightScene(targetCtx, size, cookieSourceCanvas) {
-            const scale = size / 600;
-            targetCtx.save();
-            targetCtx.scale(scale, scale);
+        // 쪼마난 미니 트리 그리기 헬퍼 (겨울 밤 풍경용)
+        function drawMiniTree(ctx, x, y, scale) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(scale, scale);
 
-            // 1. 깊은 겨울 밤하늘 그라데이션 (밤하늘 남색 ~ 따뜻한 별빛 톤)
-            const skyGrad = targetCtx.createLinearGradient(0, 0, 0, 600);
-            skyGrad.addColorStop(0, '#071326');
-            skyGrad.addColorStop(0.55, '#102847');
-            skyGrad.addColorStop(1, '#1d3f66');
-            targetCtx.fillStyle = skyGrad;
-            targetCtx.fillRect(0, 0, 600, 600);
+            // 나무 기둥
+            ctx.fillStyle = '#4a2c18';
+            ctx.fillRect(-6, 0, 12, 16);
 
-            // 2. 은은하게 빛나는 보름달 & 후광
-            targetCtx.save();
-            const moonGlow = targetCtx.createRadialGradient(485, 95, 10, 485, 95, 95);
-            moonGlow.addColorStop(0, 'rgba(254, 249, 195, 0.95)');
-            moonGlow.addColorStop(0.35, 'rgba(253, 224, 71, 0.25)');
-            moonGlow.addColorStop(1, 'rgba(253, 224, 71, 0)');
-            targetCtx.fillStyle = moonGlow;
-            targetCtx.beginPath();
-            targetCtx.arc(485, 95, 95, 0, Math.PI * 2);
-            targetCtx.fill();
-
-            targetCtx.fillStyle = '#fef9c3';
-            targetCtx.beginPath();
-            targetCtx.arc(485, 95, 28, 0, Math.PI * 2);
-            targetCtx.fill();
-            targetCtx.restore();
-
-            // 3. 밤하늘의 반짝이는 별들
-            const stars = [
-                { x: 75, y: 65, r: 2.5 }, { x: 145, y: 115, r: 2 }, { x: 225, y: 55, r: 3 },
-                { x: 315, y: 80, r: 2 }, { x: 385, y: 50, r: 2.5 }, { x: 105, y: 185, r: 2 },
-                { x: 540, y: 170, r: 2.2 }, { x: 265, y: 135, r: 1.8 }, { x: 420, y: 145, r: 2 }
+            // 3단 초록 잎 + 눈 덮인 느낌
+            const tiers = [
+                { y: -12, w: 34, h: 28 },
+                { y: -30, w: 26, h: 24 },
+                { y: -46, w: 18, h: 20 }
             ];
-            stars.forEach(s => {
-                targetCtx.save();
-                targetCtx.fillStyle = '#fef08a';
-                targetCtx.shadowColor = '#fde047';
-                targetCtx.shadowBlur = 8;
-                targetCtx.beginPath();
-                targetCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                targetCtx.fill();
-                targetCtx.restore();
+            tiers.forEach(t => {
+                ctx.fillStyle = '#14532d';
+                ctx.beginPath();
+                ctx.moveTo(0, t.y - t.h);
+                ctx.lineTo(t.w, t.y);
+                ctx.lineTo(-t.w, t.y);
+                ctx.closePath();
+                ctx.fill();
+
+                // 잎 끝 하얀 눈
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(-t.w * 0.7, t.y - 2);
+                ctx.quadraticCurveTo(0, t.y + 3, t.w * 0.7, t.y - 2);
+                ctx.stroke();
             });
 
-            // 4. 멀리 보이는 눈 덮인 작은 산과 실루엣 침엽수림 (배경 원근감)
-            targetCtx.fillStyle = '#163252';
-            targetCtx.beginPath();
-            targetCtx.moveTo(0, 440);
-            targetCtx.quadraticCurveTo(160, 365, 340, 430);
-            targetCtx.quadraticCurveTo(480, 375, 600, 425);
-            targetCtx.lineTo(600, 600);
-            targetCtx.lineTo(0, 600);
-            targetCtx.closePath();
-            targetCtx.fill();
+            // 꼭대기 작은 별
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(0, -68, 4, 0, Math.PI * 2);
+            ctx.fill();
 
-            // 원경의 작은 침엽수 실루엣
-            const bgTrees = [
-                { x: 45, y: 435, h: 72 },
-                { x: 92, y: 442, h: 55 },
-                { x: 510, y: 432, h: 76 },
-                { x: 558, y: 440, h: 58 }
+            // 알록달록 작은 전구
+            const bulbs = [
+                { bx: -12, by: -16, c: '#ef4444' },
+                { bx: 10, by: -18, c: '#facc15' },
+                { bx: -6, by: -34, c: '#38bdf8' },
+                { bx: 8, by: -36, c: '#f472b6' }
             ];
-            bgTrees.forEach(t => {
-                targetCtx.fillStyle = '#0f253e';
-                targetCtx.beginPath();
-                targetCtx.moveTo(t.x, t.y - t.h);
-                targetCtx.lineTo(t.x + t.h * 0.36, t.y);
-                targetCtx.lineTo(t.x - t.h * 0.36, t.y);
-                targetCtx.closePath();
-                targetCtx.fill();
+            bulbs.forEach(b => {
+                ctx.fillStyle = b.c;
+                ctx.beginPath();
+                ctx.arc(b.bx, b.by, 3, 0, Math.PI * 2);
+                ctx.fill();
             });
 
-            // 5. 소복이 쌓인 하얀 눈 언덕 (2겹 레이어)
-            // 뒤쪽 눈 언덕
-            const backSnowGrad = targetCtx.createLinearGradient(0, 420, 0, 560);
-            backSnowGrad.addColorStop(0, '#dbeafe');
-            backSnowGrad.addColorStop(1, '#93c5fd');
-            targetCtx.fillStyle = backSnowGrad;
-            targetCtx.beginPath();
-            targetCtx.moveTo(0, 465);
-            targetCtx.quadraticCurveTo(210, 415, 420, 465);
-            targetCtx.quadraticCurveTo(520, 445, 600, 460);
-            targetCtx.lineTo(600, 600);
-            targetCtx.lineTo(0, 600);
-            targetCtx.closePath();
-            targetCtx.fill();
-
-            // 눈 언덕 위에 아기자기하게 서 있는 쪼마난 크리스마스 트리들
-            function drawMiniPineTree(tx, ty, scaleTree, hasStar) {
-                targetCtx.save();
-                targetCtx.translate(tx, ty);
-                targetCtx.scale(scaleTree, scaleTree);
-
-                // 트리 기둥
-                targetCtx.fillStyle = '#5c3419';
-                targetCtx.fillRect(-5, -12, 10, 14);
-
-                // 3단 초록 잎사귀 + 소복이 쌓인 눈
-                const tiers = [
-                    { y: -12, w: 30, h: 26, c: '#15803d' },
-                    { y: -28, w: 24, h: 24, c: '#16a34a' },
-                    { y: -44, w: 18, h: 22, c: '#22c55e' }
-                ];
-                tiers.forEach(tier => {
-                    targetCtx.fillStyle = tier.c;
-                    targetCtx.beginPath();
-                    targetCtx.moveTo(0, tier.y - tier.h);
-                    targetCtx.lineTo(tier.w, tier.y);
-                    targetCtx.lineTo(-tier.w, tier.y);
-                    targetCtx.closePath();
-                    targetCtx.fill();
-
-                    // 나뭇가지 끝에 살짝 얹힌 하얀 눈
-                    targetCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-                    targetCtx.beginPath();
-                    targetCtx.moveTo(0, tier.y - tier.h);
-                    targetCtx.lineTo(tier.w * 0.45, tier.y - tier.h * 0.52);
-                    targetCtx.quadraticCurveTo(0, tier.y - tier.h * 0.65, -tier.w * 0.45, tier.y - tier.h * 0.52);
-                    targetCtx.closePath();
-                    targetCtx.fill();
-                });
-
-                // 반짝이는 작은 전구 방울
-                const bulbs = [
-                    { x: -10, y: -18, c: '#ef4444' },
-                    { x: 9, y: -22, c: '#facc15' },
-                    { x: -5, y: -35, c: '#38bdf8' },
-                    { x: 6, y: -38, c: '#f472b6' }
-                ];
-                bulbs.forEach(b => {
-                    targetCtx.fillStyle = b.c;
-                    targetCtx.beginPath();
-                    targetCtx.arc(b.x, b.y, 2.6, 0, Math.PI * 2);
-                    targetCtx.fill();
-                });
-
-                // 꼭대기 작은 별
-                if (hasStar) {
-                    targetCtx.fillStyle = '#fde047';
-                    targetCtx.beginPath();
-                    targetCtx.arc(0, -68, 4, 0, Math.PI * 2);
-                    targetCtx.fill();
-                }
-
-                targetCtx.restore();
-            }
-
-            // 좌우 눈밭 언덕에 쪼마난 트리 4그루 배치
-            drawMiniPineTree(62, 462, 1.05, true);
-            drawMiniPineTree(115, 452, 0.75, false);
-            drawMiniPineTree(535, 458, 1.1, true);
-            drawMiniPineTree(485, 466, 0.72, false);
-
-            // 앞쪽 포근한 메인 눈밭
-            const frontSnowGrad = targetCtx.createLinearGradient(0, 460, 0, 600);
-            frontSnowGrad.addColorStop(0, '#ffffff');
-            frontSnowGrad.addColorStop(0.65, '#eff6ff');
-            frontSnowGrad.addColorStop(1, '#bfdbfe');
-            targetCtx.fillStyle = frontSnowGrad;
-            targetCtx.beginPath();
-            targetCtx.moveTo(0, 495);
-            targetCtx.quadraticCurveTo(300, 455, 600, 498);
-            targetCtx.lineTo(600, 600);
-            targetCtx.lineTo(0, 600);
-            targetCtx.closePath();
-            targetCtx.fill();
-
-            // 6. 눈밭 위에 살포시 드리운 쿠키 그림자
-            targetCtx.save();
-            targetCtx.fillStyle = 'rgba(30, 58, 138, 0.25)';
-            targetCtx.beginPath();
-            targetCtx.ellipse(300, 518, 155, 22, 0, 0, Math.PI * 2);
-            targetCtx.fill();
-            targetCtx.restore();
-
-            // 7. 주인공 진저브레드 쿠키 크게 배치 (어떤 모양이든 돋보이는 구도)
-            const cookieCenterX = 300;
-            const cookieCenterY = 305;
-            const cookieDrawSize = 455;
-
-            targetCtx.save();
-            targetCtx.shadowColor = 'rgba(7, 19, 38, 0.55)';
-            targetCtx.shadowBlur = 24;
-            targetCtx.shadowOffsetY = 12;
-            targetCtx.drawImage(
-                cookieSourceCanvas,
-                cookieCenterX - cookieDrawSize / 2,
-                cookieCenterY - cookieDrawSize / 2,
-                cookieDrawSize,
-                cookieDrawSize
-            );
-            targetCtx.restore();
-
-            // 8. 화면 전체에 흩날리는 포근한 눈송이 (전경 효과)
-            const snowflakes = [
-                { x: 55, y: 120, r: 4.5, a: 0.85 }, { x: 130, y: 75, r: 3, a: 0.7 },
-                { x: 210, y: 155, r: 5, a: 0.8 },  { x: 390, y: 110, r: 4, a: 0.85 },
-                { x: 545, y: 135, r: 5, a: 0.9 },  { x: 45, y: 265, r: 5.5, a: 0.85 },
-                { x: 95, y: 360, r: 3.5, a: 0.75 }, { x: 530, y: 255, r: 4.5, a: 0.85 },
-                { x: 560, y: 375, r: 5, a: 0.8 },  { x: 85, y: 540, r: 4, a: 0.7 },
-                { x: 505, y: 545, r: 4.5, a: 0.75 }, { x: 175, y: 565, r: 3, a: 0.65 },
-                { x: 425, y: 560, r: 3.5, a: 0.7 }, { x: 300, y: 65, r: 4, a: 0.8 }
-            ];
-            snowflakes.forEach(f => {
-                targetCtx.save();
-                targetCtx.fillStyle = `rgba(255, 255, 255, ${f.a})`;
-                targetCtx.shadowColor = '#ffffff';
-                targetCtx.shadowBlur = 6;
-                targetCtx.beginPath();
-                targetCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                targetCtx.fill();
-                targetCtx.restore();
-            });
-
-            targetCtx.restore();
+            ctx.restore();
         }
 
-        document.getElementById('finish-btn').addEventListener('click', () => {
-            // 1) 투명 배경의 순수 쿠키 캔버스 추출
-            const cookieOnlyCanvas = document.createElement('canvas');
-            cookieOnlyCanvas.width = LOGICAL_SIZE;
-            cookieOnlyCanvas.height = LOGICAL_SIZE;
-            renderCanvas(cookieOnlyCanvas.getContext('2d'), false);
-
-            // 2) 눈 내리고 눈 쌓인 크리스마스 밤 풍경으로 합성
+        // 눈 내리는 겨울 밤 + 미니 트리 4그루 배경이 포함된 쿠키 장면 렌더링
+        function renderWinterSceneCookieCanvas(size = 600) {
             const sceneCanvas = document.createElement('canvas');
-            sceneCanvas.width = LOGICAL_SIZE;
-            sceneCanvas.height = LOGICAL_SIZE;
-            drawCookieOnSnowyNightScene(sceneCanvas.getContext('2d'), LOGICAL_SIZE, cookieOnlyCanvas);
+            sceneCanvas.width = size;
+            sceneCanvas.height = size;
+            const sCtx = sceneCanvas.getContext('2d');
 
-            finalCookieImg.src = sceneCanvas.toDataURL('image/png');
+            // 1) 깊은 크리스마스 겨울 밤하늘 그라데이션
+            const skyGrad = sCtx.createLinearGradient(0, 0, 0, size);
+            skyGrad.addColorStop(0, '#091124');
+            skyGrad.addColorStop(0.55, '#13274a');
+            skyGrad.addColorStop(1, '#1e3a5f');
+            sCtx.fillStyle = skyGrad;
+            sCtx.fillRect(0, 0, size, size);
+
+            // 2) 은은한 초승달 & 밤하늘 별빛
+            sCtx.save();
+            sCtx.fillStyle = '#fef08a';
+            sCtx.shadowColor = 'rgba(254, 240, 138, 0.7)';
+            sCtx.shadowBlur = 18;
+            sCtx.beginPath();
+            sCtx.arc(size * 0.82, size * 0.16, size * 0.055, 0, Math.PI * 2);
+            sCtx.fill();
+            sCtx.fillStyle = '#0d1933';
+            sCtx.shadowBlur = 0;
+            sCtx.beginPath();
+            sCtx.arc(size * 0.845, size * 0.145, size * 0.05, 0, Math.PI * 2);
+            sCtx.fill();
+            sCtx.restore();
+
+            for (let i = 0; i < 28; i++) {
+                const sx = ((i * 97) % 100) / 100 * size;
+                const sy = ((i * 53) % 65) / 100 * size;
+                const sr = (i % 3) * 0.8 + 1;
+                sCtx.fillStyle = i % 2 === 0 ? 'rgba(255, 255, 255, 0.85)' : 'rgba(254, 240, 138, 0.8)';
+                sCtx.beginPath();
+                sCtx.arc(sx, sy, sr, 0, Math.PI * 2);
+                sCtx.fill();
+            }
+
+            // 3) 소복이 눈 쌓인 설원 언덕 (뒤 언덕 + 앞 언덕)
+            sCtx.fillStyle = '#cbd5e1';
+            sCtx.beginPath();
+            sCtx.moveTo(0, size * 0.74);
+            sCtx.quadraticCurveTo(size * 0.35, size * 0.66, size * 0.75, size * 0.74);
+            sCtx.lineTo(size, size * 0.71);
+            sCtx.lineTo(size, size);
+            sCtx.lineTo(0, size);
+            sCtx.closePath();
+            sCtx.fill();
+
+            sCtx.fillStyle = '#f8fafc';
+            sCtx.beginPath();
+            sCtx.moveTo(0, size * 0.78);
+            sCtx.quadraticCurveTo(size * 0.5, size * 0.70, size, size * 0.79);
+            sCtx.lineTo(size, size);
+            sCtx.lineTo(0, size);
+            sCtx.closePath();
+            sCtx.fill();
+
+            // 4) 양쪽에 배치된 쪼마난 미니 트리 4그루
+            drawMiniTree(sCtx, size * 0.12, size * 0.74, 0.85);
+            drawMiniTree(sCtx, size * 0.24, size * 0.77, 0.65);
+            drawMiniTree(sCtx, size * 0.77, size * 0.76, 0.68);
+            drawMiniTree(sCtx, size * 0.89, size * 0.74, 0.88);
+
+            // 5) 중앙에 크게 주인공처럼 놓인 완성 쿠키
+            const rawCookieCanvas = document.createElement('canvas');
+            rawCookieCanvas.width = LOGICAL_SIZE;
+            rawCookieCanvas.height = LOGICAL_SIZE;
+            renderCanvas(rawCookieCanvas.getContext('2d'), false);
+
+            // 눈밭 위 쿠키 바닥 그림자
+            sCtx.save();
+            sCtx.fillStyle = 'rgba(15, 23, 42, 0.25)';
+            sCtx.beginPath();
+            sCtx.ellipse(size * 0.5, size * 0.84, size * 0.24, size * 0.04, 0, 0, Math.PI * 2);
+            sCtx.fill();
+            sCtx.restore();
+
+            const cookieDrawSize = size * 0.78;
+            const offset = (size - cookieDrawSize) / 2;
+            sCtx.drawImage(rawCookieCanvas, offset, offset + size * 0.03, cookieDrawSize, cookieDrawSize);
+
+            // 6) 화면 전체에 흩날리는 하얀 눈송이
+            for (let i = 0; i < 42; i++) {
+                const fx = ((i * 73 + 19) % 100) / 100 * size;
+                const fy = ((i * 41 + 11) % 100) / 100 * size;
+                const fr = (i % 4) * 1.1 + 1.8;
+                sCtx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                sCtx.beginPath();
+                sCtx.arc(fx, fy, fr, 0, Math.PI * 2);
+                sCtx.fill();
+            }
+
+            return sceneCanvas;
+        }
+
+        // 크리스마스 카드 전체 캔버스 생성 헬퍼 (배경 + 문구 합성)
+        function generateCardCanvas() {
+            const cardCanvas = document.createElement('canvas');
+            cardCanvas.width = 700;
+            cardCanvas.height = 840;
+            const cCtx = cardCanvas.getContext('2d');
+
+            // 따뜻한 크림색 카드 배경
+            cCtx.fillStyle = '#fdf6e7';
+            cCtx.fillRect(0, 0, 700, 840);
+
+            // 크리스마스 레드 & 골드 테두리
+            cCtx.strokeStyle = '#b91c1c';
+            cCtx.lineWidth = 16;
+            cCtx.strokeRect(24, 24, 652, 792);
+
+            cCtx.strokeStyle = '#d97706';
+            cCtx.lineWidth = 3;
+            cCtx.strokeRect(38, 38, 624, 764);
+
+            // 상단 문구
+            cCtx.fillStyle = '#b91c1c';
+            cCtx.font = 'bold 36px "Jua", sans-serif';
+            cCtx.textAlign = 'center';
+            cCtx.fillText('🎄 MERRY CHRISTMAS 🎄', 350, 102);
+
+            // 눈 내리는 겨울 밤 쿠키 장면 삽입
+            const sceneCanvas = renderWinterSceneCookieCanvas(600);
+            cCtx.save();
+            cCtx.beginPath();
+            cCtx.roundRect(50, 125, 600, 600, 24);
+            cCtx.clip();
+            cCtx.drawImage(sceneCanvas, 50, 125, 600, 600);
+            cCtx.restore();
+
+            // 하단 사용자 메시지
+            const userMsg = cookieMessageInput.value || '따뜻한 크리스마스 보내세요 🎄';
+            cCtx.fillStyle = '#3e1f14';
+            cCtx.font = '32px "Jua", sans-serif';
+            cCtx.fillText(userMsg, 350, 770);
+
+            return cardCanvas;
+        }
+
+        // 미리보기 이미지 최신화 (모달 열릴 때 & 메시지 수정 시 반영)
+        function updateFinalPreviewImage() {
+            const cardCanvas = generateCardCanvas();
+            finalCookieImg.src = cardCanvas.toDataURL('image/png');
+        }
+
+        cookieMessageInput.addEventListener('input', updateFinalPreviewImage);
+
+        document.getElementById('finish-btn').addEventListener('click', () => {
+            updateFinalPreviewImage();
             resultModal.classList.remove('hidden');
             resultModal.classList.add('flex');
             playJingle();
@@ -1348,69 +1324,16 @@
         document.getElementById('close-modal-btn').addEventListener('click', closeModal);
         document.getElementById('keep-decorating-btn').addEventListener('click', closeModal);
 
-        // 크리스마스 카드 캔버스 생성 헬퍼 (눈 내리는 크리스마스 밤 카드)
-        function generateCardCanvas() {
-            const cardCanvas = document.createElement('canvas');
-            cardCanvas.width = 700;
-            cardCanvas.height = 840;
-            const cCtx = cardCanvas.getContext('2d');
-
-            // 포근한 겨울 밤하늘 딥 네이비 카드 배경
-            cCtx.fillStyle = '#09192f';
-            cCtx.fillRect(0, 0, 700, 840);
-
-            // 골드 & 화이트 이중 액자 테두리
-            cCtx.strokeStyle = '#f59e0b';
-            cCtx.lineWidth = 10;
-            cCtx.strokeRect(20, 20, 660, 800);
-
-            cCtx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-            cCtx.lineWidth = 3;
-            cCtx.strokeRect(32, 32, 636, 776);
-
-            // 상단 문구
-            cCtx.fillStyle = '#fde047';
-            cCtx.font = 'bold 36px "Jua", sans-serif';
-            cCtx.textAlign = 'center';
-            cCtx.fillText('❄️ MERRY CHRISTMAS ❄️', 350, 95);
-
-            // 쿠키 추출 후 눈 내리는 크리스마스 밤 씬 그리기
-            const cookieOnlyCanvas = document.createElement('canvas');
-            cookieOnlyCanvas.width = LOGICAL_SIZE;
-            cookieOnlyCanvas.height = LOGICAL_SIZE;
-            renderCanvas(cookieOnlyCanvas.getContext('2d'), false);
-
-            const snowySceneCanvas = document.createElement('canvas');
-            snowySceneCanvas.width = 600;
-            snowySceneCanvas.height = 600;
-            drawCookieOnSnowyNightScene(snowySceneCanvas.getContext('2d'), 600, cookieOnlyCanvas);
-
-            cCtx.drawImage(snowySceneCanvas, 50, 120, 600, 600);
-
-            // 액자 테두리
-            cCtx.strokeStyle = 'rgba(253, 224, 71, 0.45)';
-            cCtx.lineWidth = 3;
-            cCtx.strokeRect(50, 120, 600, 600);
-
-            // 하단 사용자 메시지
-            const userMsg = document.getElementById('cookie-message').value || '따뜻한 크리스마스 보내세요 🎄';
-            cCtx.fillStyle = '#fef3c7';
-            cCtx.font = '32px "Jua", sans-serif';
-            cCtx.fillText(userMsg, 350, 772);
-
-            return cardCanvas;
-        }
-
-        // 친구에게 공유하기 (Web Share API + 클립보드 폴백)
-        document.getElementById('share-btn').addEventListener('click', async () => {
+        // 친구에게 공유하기 (Web Share API + 클립보드/링크 폴백)
+        document.getElementById('share-btn').addEventListener('click', () => {
             const cardCanvas = generateCardCanvas();
-            const userMsg = document.getElementById('cookie-message').value || '따뜻한 크리스마스 보내세요 🎄';
+            const userMsg = cookieMessageInput.value || '따뜻한 크리스마스 보내세요 🎄';
 
             cardCanvas.toBlob(async (blob) => {
                 if (!blob) return;
-                const file = new File([blob], 'my-christmas-gingerbread.png', { type: 'image/png' });
+                const file = new File([blob], 'gingerbread-cookie.png', { type: 'image/png' });
 
-                // 모바일/지원 브라우저에서 이미지 파일 직접 공유
+                // 1) 이미지 파일 공유 지원 시 (iOS Safari, Android Chrome 등)
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     try {
                         await navigator.share({
@@ -1425,50 +1348,68 @@
                     }
                 }
 
-                // 파일 공유 미지원 환경일 경우 URL/메시지 공유 또는 클립보드 복사
-                if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: '진저브레드 쿠키 공방 🎄',
-                            text: `${userMsg} - 나만의 진저브레드 쿠키 만들기!`,
-                            url: window.location.href
-                        });
+                // 2) 클립보드에 이미지 복사 시도 (데스크톱 브라우저)
+                try {
+                    if (navigator.clipboard && window.ClipboardItem) {
+                        await navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]);
+                        showToast('📋 쿠키 카드 이미지가 클립보드에 복사되었어요! 붙여넣기로 공유하세요.');
                         return;
-                    } catch (err) {
-                        if (err.name === 'AbortError') return;
                     }
+                } catch (e) {
+                    // 이미지 클립보드 복사 실패 시 링크 복사로 폴백
                 }
 
-                // 데스크톱 폴백: 클립보드에 이미지 복사 시도 후 안내
+                // 3) 현재 페이지 링크 복사 폴백
                 try {
-                    await navigator.clipboard.write([
-                        new ClipboardItem({ 'image/png': blob })
-                    ]);
-                    showToast('📋 쿠키 카드 이미지가 클립보드에 복사되었어요! 붙여넣기로 공유하세요.');
-                } catch (e) {
-                    // 클립보드 권한 제한 시 텍스트 복사 폴백
-                    const tempInput = document.createElement('textarea');
-                    tempInput.value = `🎄 ${userMsg} - 나만의 진저브레드 쿠키 공방에서 만든 쿠키예요!`;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempInput);
-                    showToast('💌 초대 메시지가 복사되었어요! 이미지 저장도 함께 이용해보세요.');
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        await navigator.clipboard.writeText(window.location.href);
+                    } else {
+                        const tempInput = document.createElement('textarea');
+                        tempInput.value = window.location.href;
+                        document.body.appendChild(tempInput);
+                        tempInput.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(tempInput);
+                    }
+                    showToast('🔗 페이지 주소가 복사되었어요! 위 카드는 꾹 눌러 저장해 함께 보내보세요.');
+                } catch (err) {
+                    showToast('💡 위 카드를 꾹 눌러 저장한 뒤 친구에게 공유해 보세요!');
                 }
             }, 'image/png');
         });
 
-        // 크리스마스 카드 이미지로 합성 후 다운로드
+        // 이미지 저장 버튼 (모바일 / 인앱 브라우저 / PC 완벽 호환)
         document.getElementById('download-btn').addEventListener('click', () => {
             const cardCanvas = generateCardCanvas();
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-            // 다운로드 실행
-            const link = document.createElement('a');
-            link.download = 'my-christmas-gingerbread.png';
-            link.href = cardCanvas.toDataURL('image/png');
-            link.click();
+            cardCanvas.toBlob((blob) => {
+                if (!blob) {
+                    showToast("이미지가 저장되었어요! (안 될 경우 카드를 꾹 눌러 저장)");
+                    return;
+                }
 
-            showToast('🎁 나만의 크리스마스 쿠키 카드가 저장되었어요!');
+                const blobUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = 'gingerbread-cookie.png';
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }, 1000);
+
+                if (isMobile) {
+                    showToast("이미지가 저장되었어요! (안 될 경우 카드를 꾹 눌러 저장)");
+                } else {
+                    showToast('🎁 나만의 크리스마스 쿠키 카드가 저장되었어요!');
+                }
+            }, 'image/png');
         });
 
         // ==========================================
