@@ -220,7 +220,7 @@
                         </button>
                     </div>
                     <div class="flex items-center justify-between px-1 pt-1">
-                        <span class="text-xs text-amber-200/80">캐롤 효과음</span>
+                        <span class="text-xs text-amber-200/80">완성 캐롤</span>
                         <button id="sound-toggle" class="text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full transition">
                             🔊 켜짐
                         </button>
@@ -332,26 +332,27 @@
          */
 
         // ==========================================
-        // 1. 눈송이 배경 생성
+        // 1. 배경 눈송이 생성
         // ==========================================
         function createSnowflakes() {
             const container = document.getElementById('snow-container');
-            const snowChars = ['❄', '❅', '❆', '•'];
-            for (let i = 0; i < 28; i++) {
+            if (!container) return;
+            const flakes = ['❄', '❅', '❆', '•'];
+            for (let i = 0; i < 24; i++) {
                 const flake = document.createElement('div');
                 flake.className = 'snowflake';
-                flake.textContent = snowChars[Math.floor(Math.random() * snowChars.length)];
-                flake.style.left = Math.random() * 100 + 'vw';
-                flake.style.fontSize = (Math.random() * 12 + 10) + 'px';
-                flake.style.opacity = Math.random() * 0.7 + 0.3;
-                flake.style.animationDuration = (Math.random() * 8 + 7) + 's, ' + (Math.random() * 2 + 2) + 's';
-                flake.style.animationDelay = (Math.random() * 5) + 's';
+                flake.textContent = flakes[i % flakes.length];
+                flake.style.left = `${Math.random() * 100}vw`;
+                flake.style.fontSize = `${Math.random() * 10 + 10}px`;
+                flake.style.opacity = `${Math.random() * 0.6 + 0.3}`;
+                flake.style.animationDuration = `${Math.random() * 7 + 7}s, ${Math.random() * 2 + 2.5}s`;
+                flake.style.animationDelay = `${Math.random() * 5}s, ${Math.random() * 2}s`;
                 container.appendChild(flake);
             }
         }
 
         // ==========================================
-        // 2. 효과음 (Tone.js)
+        // 2. 완성 축하 캐롤 (Tone.js)
         // ==========================================
         let soundEnabled = true;
         let synth = null;
@@ -359,20 +360,11 @@
         function initAudio() {
             if (!synth && typeof Tone !== 'undefined') {
                 synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'sine' },
-                    envelope: { attack: 0.01, decay: 0.15, sustain: 0.05, release: 0.3 }
+                    oscillator: { type: 'triangle' },
+                    envelope: { attack: 0.02, decay: 0.25, sustain: 0.15, release: 0.6 }
                 }).toDestination();
-                synth.volume.value = -10;
+                synth.volume.value = -8;
             }
-        }
-
-        function playPopSound(freq = 'C6') {
-            if (!soundEnabled) return;
-            try {
-                initAudio();
-                if (Tone.context.state !== 'running') Tone.start();
-                synth?.triggerAttackRelease(freq, '32n');
-            } catch (e) {}
         }
 
         function playJingle() {
@@ -380,28 +372,77 @@
             try {
                 initAudio();
                 if (Tone.context.state !== 'running') Tone.start();
-                const now = Tone.now();
-                const notes = [
-                    { note: 'E5', time: 0, dur: '8n' },
-                    { note: 'E5', time: 0.18, dur: '8n' },
-                    { note: 'E5', time: 0.36, dur: '4n' },
-                    { note: 'E5', time: 0.72, dur: '8n' },
-                    { note: 'E5', time: 0.90, dur: '8n' },
-                    { note: 'E5', time: 1.08, dur: '4n' },
-                    { note: 'E5', time: 1.44, dur: '8n' },
-                    { note: 'G5', time: 1.62, dur: '8n' },
-                    { note: 'C5', time: 1.80, dur: '8n' },
-                    { note: 'D5', time: 1.98, dur: '8n' },
-                    { note: 'E5', time: 2.16, dur: '2n' }
+                synth?.releaseAll();
+                const now = Tone.now() + 0.05;
+                const b = 0.18; // 8분음표 길이
+
+                // 징글벨 후렴구 전체 멜로디 + 따뜻한 화음 반주
+                const melody = [
+                    // 1절
+                    { note: ['C4', 'E5'], t: 0 * b, dur: 0.16 },
+                    { note: 'E5', t: 1 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 2 * b, dur: 0.32 },
+                    { note: ['C4', 'E5'], t: 4 * b, dur: 0.16 },
+                    { note: 'E5', t: 5 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 6 * b, dur: 0.32 },
+                    { note: ['C4', 'E5'], t: 8 * b, dur: 0.16 },
+                    { note: 'G5', t: 9 * b, dur: 0.16 },
+                    { note: ['E4', 'C5'], t: 10 * b, dur: 0.24 },
+                    { note: 'D5', t: 11.5 * b, dur: 0.09 },
+                    { note: ['C4', 'G4', 'E5'], t: 12 * b, dur: 0.65 },
+
+                    { note: ['F3', 'F5'], t: 16 * b, dur: 0.16 },
+                    { note: 'F5', t: 17 * b, dur: 0.16 },
+                    { note: ['A3', 'F5'], t: 18 * b, dur: 0.24 },
+                    { note: 'F5', t: 19.5 * b, dur: 0.09 },
+                    { note: ['C4', 'F5'], t: 20 * b, dur: 0.16 },
+                    { note: 'E5', t: 21 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 22 * b, dur: 0.16 },
+                    { note: 'E5', t: 23 * b, dur: 0.09 },
+                    { note: 'E5', t: 23.5 * b, dur: 0.09 },
+                    { note: ['G3', 'E5'], t: 24 * b, dur: 0.16 },
+                    { note: 'D5', t: 25 * b, dur: 0.16 },
+                    { note: ['B3', 'D5'], t: 26 * b, dur: 0.16 },
+                    { note: 'E5', t: 27 * b, dur: 0.16 },
+                    { note: ['G3', 'D5'], t: 28 * b, dur: 0.32 },
+                    { note: ['G3', 'B3', 'G5'], t: 30 * b, dur: 0.32 },
+
+                    // 2절 반복 및 피날레
+                    { note: ['C4', 'E5'], t: 32 * b, dur: 0.16 },
+                    { note: 'E5', t: 33 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 34 * b, dur: 0.32 },
+                    { note: ['C4', 'E5'], t: 36 * b, dur: 0.16 },
+                    { note: 'E5', t: 37 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 38 * b, dur: 0.32 },
+                    { note: ['C4', 'E5'], t: 40 * b, dur: 0.16 },
+                    { note: 'G5', t: 41 * b, dur: 0.16 },
+                    { note: ['E4', 'C5'], t: 42 * b, dur: 0.24 },
+                    { note: 'D5', t: 43.5 * b, dur: 0.09 },
+                    { note: ['C4', 'G4', 'E5'], t: 44 * b, dur: 0.65 },
+
+                    { note: ['F3', 'F5'], t: 48 * b, dur: 0.16 },
+                    { note: 'F5', t: 49 * b, dur: 0.16 },
+                    { note: ['A3', 'F5'], t: 50 * b, dur: 0.24 },
+                    { note: 'F5', t: 51.5 * b, dur: 0.09 },
+                    { note: ['C4', 'F5'], t: 52 * b, dur: 0.16 },
+                    { note: 'E5', t: 53 * b, dur: 0.16 },
+                    { note: ['G3', 'E5'], t: 54 * b, dur: 0.16 },
+                    { note: 'E5', t: 55 * b, dur: 0.09 },
+                    { note: 'E5', t: 55.5 * b, dur: 0.09 },
+                    { note: ['G3', 'G5'], t: 56 * b, dur: 0.16 },
+                    { note: 'G5', t: 57 * b, dur: 0.16 },
+                    { note: ['B3', 'F5'], t: 58 * b, dur: 0.16 },
+                    { note: 'D5', t: 59 * b, dur: 0.16 },
+                    { note: ['C4', 'E4', 'G4', 'C5'], t: 60 * b, dur: 1.1 }
                 ];
-                notes.forEach(n => synth?.triggerAttackRelease(n.note, n.dur, now + n.time));
+
+                melody.forEach(n => synth?.triggerAttackRelease(n.note, n.dur, now + n.t));
             } catch (e) {}
         }
 
         document.getElementById('sound-toggle').addEventListener('click', (e) => {
             soundEnabled = !soundEnabled;
             e.target.textContent = soundEnabled ? '🔊 켜짐' : '🔇 꺼짐';
-            if (soundEnabled) playPopSound('G5');
         });
 
         // 토스트 메시지 유틸
@@ -943,7 +984,6 @@
                     y: pt.y,
                     rotation: (Math.random() - 0.5) * 0.5
                 });
-                playPopSound('E6');
                 renderAll();
             } else {
                 isDrawing = true;
@@ -953,7 +993,6 @@
                     size: penSize,
                     points: [pt]
                 };
-                playPopSound('C6');
                 renderAll();
             }
         }
@@ -1014,7 +1053,6 @@
                 btn.classList.add('active', 'bg-amber-600/40', 'border-amber-400');
                 btn.classList.remove('bg-white/5', 'border-transparent');
                 currentShape = btn.dataset.shape;
-                playPopSound('D5');
                 renderAll();
             });
         });
@@ -1030,7 +1068,6 @@
                 btn.classList.add('border-amber-400', 'ring-2', 'ring-amber-300', 'scale-110');
                 penColor = btn.dataset.color;
                 switchToPenMode();
-                playPopSound('G5');
             });
         });
 
@@ -1045,13 +1082,11 @@
                 btn.classList.add('active', 'bg-amber-500/40', 'border', 'border-amber-400');
                 penSize = Number(btn.dataset.size);
                 switchToPenMode();
-                playPopSound('A5');
             });
         });
 
         modePenBtn.addEventListener('click', () => {
             switchToPenMode();
-            playPopSound('G5');
         });
 
         // 토핑 선택
@@ -1075,7 +1110,6 @@
                 modePenBtn.classList.add('opacity-60');
                 toppingBadge.classList.remove('hidden');
                 modeIndicator.textContent = '✨ 쿠키 위 원하는 곳을 톡톡 터치해 토핑을 얹으세요!';
-                playPopSound('B5');
             });
         });
 
@@ -1086,14 +1120,12 @@
                 return;
             }
             actions.pop();
-            playPopSound('C5');
             renderAll();
         });
 
         document.getElementById('clear-btn').addEventListener('click', () => {
             if (actions.length === 0) return;
             actions = [];
-            playPopSound('A4');
             renderAll();
             showToast('쿠키를 깨끗하게 비웠어요! 🧹');
         });
@@ -1277,6 +1309,7 @@
         function closeModal() {
             resultModal.classList.add('hidden');
             resultModal.classList.remove('flex');
+            try { synth?.releaseAll(); } catch (e) {}
         }
 
         document.getElementById('close-modal-btn').addEventListener('click', closeModal);
