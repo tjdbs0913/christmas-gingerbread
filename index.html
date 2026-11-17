@@ -147,7 +147,7 @@
 
         <!-- 2단계: 쿠키 도마 캔버스 (중앙) -->
         <section class="w-full flex flex-col items-center justify-center max-w-[360px] sm:max-w-[440px]">
-            <div class="cutting-board w-full aspect-square rounded-[2rem] sm:rounded-[2.2rem] p-2.5 sm:p-4 flex items-center justify-center">
+            <div class="cutting-board w-full rounded-[2rem] sm:rounded-[2.2rem] p-2.5 sm:p-4">
                 <!-- 도마 손잡이 디테일 -->
                 <div class="absolute top-2.5 sm:top-3 left-1/2 -translate-x-1/2 w-14 sm:w-16 h-2 sm:h-2.5 bg-[#5a3818] rounded-full opacity-60 shadow-inner"></div>
                 
@@ -156,7 +156,7 @@
                     ✏️ 쿠키 위에 손가락이나 마우스로 그려보세요!
                 </div>
 
-                <canvas id="cookie-canvas" class="w-full h-full rounded-2xl"></canvas>
+                <canvas id="cookie-canvas" class="w-full aspect-square block rounded-2xl"></canvas>
             </div>
         </section>
 
@@ -505,10 +505,15 @@
         // 반응형 고해상도 캔버스 리사이즈
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
+            if (rect.width === 0 || rect.height === 0) return;
             const dpr = window.devicePixelRatio || 1;
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            renderAll();
+            const nextW = Math.round(rect.width * dpr);
+            const nextH = Math.round(rect.height * dpr);
+            if (canvas.width !== nextW || canvas.height !== nextH) {
+                canvas.width = nextW;
+                canvas.height = nextH;
+                renderAll();
+            }
         }
 
         // ==========================================
@@ -916,10 +921,9 @@
         }
 
         // 특정 컨텍스트에 쿠키 + 모든 데코레이션 렌더링
-        function renderCookieSceneToContext(targetCtx, size, shape, actionList, activeStroke) {
+        function renderCookieSceneToContext(targetCtx, width, height, shape, actionList, activeStroke) {
             targetCtx.save();
-            const scale = size / LOGICAL_SIZE;
-            targetCtx.scale(scale, scale);
+            targetCtx.scale(width / LOGICAL_SIZE, height / LOGICAL_SIZE);
 
             // 1. 쿠키 베이스
             drawCookieBase(targetCtx, shape);
@@ -945,7 +949,7 @@
         // 메인 도마 캔버스 전체 다시 그리기
         function renderAll() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            renderCookieSceneToContext(ctx, canvas.width, currentShape, actions, currentStroke);
+            renderCookieSceneToContext(ctx, canvas.width, canvas.height, currentShape, actions, currentStroke);
         }
 
         // ==========================================
@@ -953,8 +957,9 @@
         // ==========================================
         function getLogicalPoint(e) {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+            const clientX = touch ? touch.clientX : e.clientX;
+            const clientY = touch ? touch.clientY : e.clientY;
             return {
                 x: ((clientX - rect.left) / rect.width) * LOGICAL_SIZE,
                 y: ((clientY - rect.top) / rect.height) * LOGICAL_SIZE
@@ -970,6 +975,7 @@
 
         function handlePointerDown(e) {
             if (e.cancelable) e.preventDefault();
+            resizeCanvas();
             const pt = getLogicalPoint(e);
 
             if (toolMode === 'topping' && selectedTopping) {
@@ -1287,7 +1293,7 @@
             const cookieOffset = (size - cookieSize) / 2;
             sCtx.save();
             sCtx.translate(cookieOffset, cookieOffset + size * 0.03);
-            renderCookieSceneToContext(sCtx, cookieSize, currentShape, actions, null);
+            renderCookieSceneToContext(sCtx, cookieSize, cookieSize, currentShape, actions, null);
             sCtx.restore();
 
             return sceneCanvas;
@@ -1353,9 +1359,15 @@
             renderShapePreviews();
             renderToppingPreviews();
             resizeCanvas();
+
+            if (typeof ResizeObserver !== 'undefined') {
+                const observer = new ResizeObserver(() => resizeCanvas());
+                observer.observe(canvas);
+            }
         }
 
         window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', resizeCanvas);
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initApp);
         } else {
