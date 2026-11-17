@@ -123,24 +123,24 @@
         <!-- 1단계: 쿠키 모양 선택 (최상단) -->
         <section class="w-full bg-[#251610]/85 border border-amber-500/30 rounded-3xl p-3 sm:p-4 backdrop-blur-md shadow-xl">
             <h2 class="text-base sm:text-lg text-amber-300 mb-2 flex items-center gap-1.5">
-                <span>1️⃣</span> 쿠키 모양 고르기
+                <span>1️⃣</span> 진저브레드 모양 고르기
             </h2>
             <div class="grid grid-cols-4 gap-2 sm:gap-3" id="shape-buttons">
                 <button data-shape="gingerman" class="shape-btn active bg-amber-600/40 border-2 border-amber-400 rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-amber-600/60 transition">
-                    <span class="text-2xl sm:text-3xl">🍪</span>
-                    <span class="text-xs sm:text-sm font-medium">진저맨</span>
+                    <canvas class="shape-preview w-8 h-8 sm:w-9 sm:h-9" data-shape="gingerman" width="72" height="72"></canvas>
+                    <span class="text-[11px] sm:text-sm font-medium whitespace-nowrap">기본 진저맨</span>
                 </button>
-                <button data-shape="tree" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
-                    <span class="text-2xl sm:text-3xl">🎄</span>
-                    <span class="text-xs sm:text-sm font-medium">트리</span>
+                <button data-shape="gingergirl" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
+                    <canvas class="shape-preview w-8 h-8 sm:w-9 sm:h-9" data-shape="gingergirl" width="72" height="72"></canvas>
+                    <span class="text-[11px] sm:text-sm font-medium whitespace-nowrap">치마 진저걸</span>
                 </button>
-                <button data-shape="star" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
-                    <span class="text-2xl sm:text-3xl">⭐</span>
-                    <span class="text-xs sm:text-sm font-medium">별님</span>
+                <button data-shape="gingercheer" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
+                    <canvas class="shape-preview w-8 h-8 sm:w-9 sm:h-9" data-shape="gingercheer" width="72" height="72"></canvas>
+                    <span class="text-[11px] sm:text-sm font-medium whitespace-nowrap">만세 진저맨</span>
                 </button>
-                <button data-shape="heart" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
-                    <span class="text-2xl sm:text-3xl">❤️</span>
-                    <span class="text-xs sm:text-sm font-medium">하트</span>
+                <button data-shape="gingerbear" class="shape-btn bg-white/5 border-2 border-transparent rounded-2xl p-2 sm:p-2.5 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 hover:bg-white/15 transition">
+                    <canvas class="shape-preview w-8 h-8 sm:w-9 sm:h-9" data-shape="gingerbear" width="72" height="72"></canvas>
+                    <span class="text-[11px] sm:text-sm font-medium whitespace-nowrap">곰돌이 진저</span>
                 </button>
             </div>
         </section>
@@ -476,7 +476,7 @@
         function buildCookiePath(targetCtx, shape) {
             targetCtx.beginPath();
             if (shape === 'gingerman') {
-                // 귀여운 통통 진저맨 실루엣
+                // 1) 클래식 통통 진저맨 실루엣
                 targetCtx.moveTo(200, 38);
                 // 머리 오른쪽
                 targetCtx.bezierCurveTo(234, 38, 252, 62, 252, 92);
@@ -502,45 +502,101 @@
                 targetCtx.bezierCurveTo(160, 126, 148, 112, 148, 92);
                 targetCtx.bezierCurveTo(148, 62, 166, 38, 200, 38);
                 targetCtx.closePath();
-            } else if (shape === 'tree') {
-                // 3단 크리스마스 트리 쿠키
-                targetCtx.moveTo(200, 34);
-                targetCtx.lineTo(266, 122);
-                targetCtx.lineTo(236, 122);
-                targetCtx.lineTo(302, 206);
-                targetCtx.lineTo(264, 206);
-                targetCtx.lineTo(334, 294);
-                targetCtx.lineTo(228, 294);
-                targetCtx.lineTo(228, 354);
-                targetCtx.quadraticCurveTo(228, 366, 214, 366);
-                targetCtx.lineTo(186, 366);
-                targetCtx.quadraticCurveTo(172, 366, 172, 354);
-                targetCtx.lineTo(172, 294);
-                targetCtx.lineTo(66, 294);
-                targetCtx.lineTo(136, 206);
-                targetCtx.lineTo(98, 206);
-                targetCtx.lineTo(164, 122);
-                targetCtx.lineTo(134, 122);
+            } else if (shape === 'gingergirl') {
+                // 2) 귀여운 플레어 치마를 입은 진저걸 쿠키
+                targetCtx.moveTo(200, 38);
+                // 머리 오른쪽
+                targetCtx.bezierCurveTo(234, 38, 252, 62, 252, 92);
+                targetCtx.bezierCurveTo(252, 112, 240, 124, 232, 132);
+                // 오른팔
+                targetCtx.lineTo(314, 150);
+                targetCtx.bezierCurveTo(338, 156, 334, 192, 308, 192);
+                targetCtx.lineTo(250, 192);
+                // 오른쪽 치마 라인
+                targetCtx.quadraticCurveTo(282, 224, 298, 266);
+                targetCtx.quadraticCurveTo(302, 276, 288, 278);
+                targetCtx.lineTo(264, 278);
+                // 오른다리
+                targetCtx.lineTo(276, 332);
+                targetCtx.bezierCurveTo(282, 358, 242, 368, 232, 342);
+                targetCtx.lineTo(208, 278);
+                targetCtx.lineTo(192, 278);
+                // 왼다리
+                targetCtx.lineTo(168, 342);
+                targetCtx.bezierCurveTo(158, 368, 118, 358, 124, 332);
+                targetCtx.lineTo(136, 278);
+                // 왼쪽 치마 라인
+                targetCtx.lineTo(112, 278);
+                targetCtx.quadraticCurveTo(98, 276, 102, 266);
+                targetCtx.quadraticCurveTo(118, 224, 150, 192);
+                // 왼팔
+                targetCtx.lineTo(92, 192);
+                targetCtx.bezierCurveTo(66, 192, 62, 156, 86, 150);
+                targetCtx.lineTo(168, 132);
+                // 머리 왼쪽
+                targetCtx.bezierCurveTo(160, 124, 148, 112, 148, 92);
+                targetCtx.bezierCurveTo(148, 62, 166, 38, 200, 38);
                 targetCtx.closePath();
-            } else if (shape === 'star') {
-                // 통통한 5각 별 쿠키
-                const cx = 200, cy = 206, spikes = 5, outerR = 166, innerR = 78;
-                for (let i = 0; i < spikes * 2; i++) {
-                    const r = i % 2 === 0 ? outerR : innerR;
-                    const angle = (Math.PI / spikes) * i - Math.PI / 2;
-                    const x = cx + Math.cos(angle) * r;
-                    const y = cy + Math.sin(angle) * r;
-                    if (i === 0) targetCtx.moveTo(x, y);
-                    else targetCtx.lineTo(x, y);
-                }
+            } else if (shape === 'gingercheer') {
+                // 3) 두 팔을 위로 번쩍 든 신나는 만세 진저맨 쿠키
+                targetCtx.moveTo(200, 42);
+                // 머리 오른쪽
+                targetCtx.bezierCurveTo(232, 42, 250, 64, 250, 92);
+                targetCtx.bezierCurveTo(250, 110, 240, 124, 232, 132);
+                // 위로 뻗은 오른팔
+                targetCtx.lineTo(304, 78);
+                targetCtx.bezierCurveTo(324, 62, 350, 90, 328, 110);
+                targetCtx.lineTo(258, 174);
+                // 오른다리
+                targetCtx.lineTo(296, 318);
+                targetCtx.bezierCurveTo(306, 348, 264, 366, 248, 338);
+                targetCtx.lineTo(205, 262);
+                targetCtx.lineTo(195, 262);
+                // 왼다리
+                targetCtx.lineTo(152, 338);
+                targetCtx.bezierCurveTo(136, 366, 94, 348, 104, 318);
+                targetCtx.lineTo(142, 174);
+                // 위로 뻗은 왼팔
+                targetCtx.lineTo(72, 110);
+                targetCtx.bezierCurveTo(50, 90, 76, 62, 96, 78);
+                targetCtx.lineTo(168, 132);
+                // 머리 왼쪽
+                targetCtx.bezierCurveTo(160, 124, 150, 110, 150, 92);
+                targetCtx.bezierCurveTo(150, 64, 168, 42, 200, 42);
                 targetCtx.closePath();
-            } else if (shape === 'heart') {
-                // 포근한 하트 쿠키
-                targetCtx.moveTo(200, 118);
-                targetCtx.bezierCurveTo(200, 62, 118, 42, 82, 98);
-                targetCtx.bezierCurveTo(42, 160, 96, 246, 200, 352);
-                targetCtx.bezierCurveTo(304, 246, 358, 160, 318, 98);
-                targetCtx.bezierCurveTo(282, 42, 200, 62, 200, 118);
+            } else if (shape === 'gingerbear') {
+                // 4) 큰 둥근 귀와 통통한 배, 뭉툭한 팔다리를 가진 테디베어 쿠키
+                targetCtx.moveTo(166, 56);
+                // 이마 라인
+                targetCtx.quadraticCurveTo(200, 46, 234, 56);
+                // 오른쪽 커다란 곰돌이 귀
+                targetCtx.bezierCurveTo(256, 18, 312, 46, 288, 88);
+                targetCtx.quadraticCurveTo(282, 96, 270, 100);
+                // 오른쪽 통통한 볼
+                targetCtx.bezierCurveTo(284, 120, 274, 146, 248, 154);
+                // 오른쪽 뭉툭한 곰돌이 팔
+                targetCtx.bezierCurveTo(298, 156, 334, 180, 324, 208);
+                targetCtx.bezierCurveTo(316, 230, 284, 228, 262, 212);
+                // 오른쪽 둥근 배
+                targetCtx.quadraticCurveTo(284, 244, 270, 278);
+                // 오른쪽 뭉툭한 곰돌이 다리(발바닥)
+                targetCtx.bezierCurveTo(302, 298, 304, 346, 272, 358);
+                targetCtx.bezierCurveTo(242, 368, 214, 348, 212, 314);
+                // 다리 사이
+                targetCtx.quadraticCurveTo(200, 310, 188, 314);
+                // 왼쪽 뭉툭한 곰돌이 다리(발바닥)
+                targetCtx.bezierCurveTo(186, 348, 158, 368, 128, 358);
+                targetCtx.bezierCurveTo(96, 346, 98, 298, 130, 278);
+                // 왼쪽 둥근 배
+                targetCtx.quadraticCurveTo(116, 244, 138, 212);
+                // 왼쪽 뭉툭한 곰돌이 팔
+                targetCtx.bezierCurveTo(116, 228, 84, 230, 76, 208);
+                targetCtx.bezierCurveTo(66, 180, 102, 156, 152, 154);
+                // 왼쪽 통통한 볼
+                targetCtx.bezierCurveTo(126, 146, 116, 120, 130, 100);
+                // 왼쪽 커다란 곰돌이 귀
+                targetCtx.quadraticCurveTo(118, 96, 112, 88);
+                targetCtx.bezierCurveTo(88, 46, 144, 18, 166, 56);
                 targetCtx.closePath();
             }
         }
@@ -581,6 +637,15 @@
             targetCtx.lineWidth = 8;
             targetCtx.strokeStyle = 'rgba(248, 202, 145, 0.35)';
             targetCtx.stroke();
+
+            // 곰돌이 모양일 때 귀 안쪽 구워진 반죽 홈 디테일 추가
+            if (shape === 'gingerbear') {
+                targetCtx.fillStyle = 'rgba(112, 52, 14, 0.32)';
+                targetCtx.beginPath();
+                targetCtx.arc(134, 64, 15, 0, Math.PI * 2);
+                targetCtx.arc(266, 64, 15, 0, Math.PI * 2);
+                targetCtx.fill();
+            }
             targetCtx.restore();
 
             // 4) 외곽선 마감
@@ -1220,6 +1285,18 @@
         // ==========================================
         // 9. 초기화 실행
         // ==========================================
+        function renderShapePreviews() {
+            document.querySelectorAll('.shape-preview').forEach(previewCanvas => {
+                const sCtx = previewCanvas.getContext('2d');
+                sCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+                sCtx.save();
+                const scale = previewCanvas.width / LOGICAL_SIZE;
+                sCtx.scale(scale, scale);
+                drawCookieBase(sCtx, previewCanvas.dataset.shape);
+                sCtx.restore();
+            });
+        }
+
         function renderToppingPreviews() {
             document.querySelectorAll('.topping-preview').forEach(previewCanvas => {
                 const pCtx = previewCanvas.getContext('2d');
@@ -1240,6 +1317,7 @@
         function initApp() {
             createSnowflakes();
             createCookieTexture();
+            renderShapePreviews();
             renderToppingPreviews();
             resizeCanvas();
         }
