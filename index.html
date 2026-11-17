@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 따뜻한 감성의 한글 폰트 (Jua & Gowun Dodum) -->
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
-    <!-- Tone.js 효과음용 -->
+    <!-- Tone.js 완성 캐롤용 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         body {
@@ -175,7 +175,7 @@
                         </button>
                     </div>
 
-                    <!-- 색상 팔레트 -->
+                    <!-- 색상 팔레트 (12색) -->
                     <div class="grid grid-cols-6 gap-2 mb-3.5" id="color-palette">
                         <button data-color="#FFFFFF" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-2 border-amber-400 ring-2 ring-amber-300 shadow-md mx-auto transition transform scale-110" title="화이트 슈가"></button>
                         <button data-color="#EF4444" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-500 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="산타 레드"></button>
@@ -183,7 +183,6 @@
                         <button data-color="#FACC15" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-yellow-400 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="골드 스타"></button>
                         <button data-color="#38BDF8" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-sky-400 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="아이스 블루"></button>
                         <button data-color="#3E1F14" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#3E1F14] border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="다크 초코"></button>
-                        <!-- 추가된 다채로운 아이싱 컬러 -->
                         <button data-color="#F472B6" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-pink-400 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="딸기 핑크"></button>
                         <button data-color="#FB923C" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-orange-400 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="진저 오렌지"></button>
                         <button data-color="#C084FC" class="color-btn w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-purple-400 border-2 border-white/40 shadow-md mx-auto transition hover:scale-110" title="슈가 퍼플"></button>
@@ -325,10 +324,10 @@
     <script>
         /**
          * 크리스마스 진저브레드 쿠키 공방 애플리케이션
-         * - HTML5 Canvas를 활용한 쿠키 베이스 렌더링 (질감, 구운 테두리 표현)
-         * - 아이싱 펜 자유 그리기 (입체감 있는 슈가 아이싱 하이라이트 & 그림자 효과)
-         * - 다양한 토핑 재료 스탬프 배치
-         * - 히스토리 기반 되돌리기(Undo) 및 카드 이미지 저장
+         * - 4가지 진저브레드 캐릭터 모양 렌더링
+         * - 모바일 터치 좌표 정확 보정 및 깔끔한 본색 슈가 아이싱 펜
+         * - 9가지 크리스마스 토핑 스탬프 & 동일 미리보기 아이콘
+         * - 눈 내리는 겨울 밤 + 미니 트리 4그루 배경의 고화질(1800x1800) 완성 쿠키 이미지
          */
 
         // ==========================================
@@ -374,7 +373,7 @@
                 if (Tone.context.state !== 'running') Tone.start();
                 synth?.releaseAll();
                 const now = Tone.now() + 0.05;
-                const b = 0.18; // 8분음표 길이
+                const b = 0.18;
 
                 // 징글벨 후렴구 전체 멜로디 + 따뜻한 화음 반주
                 const melody = [
@@ -489,7 +488,7 @@
             pCtx.fillStyle = '#c57b3d';
             pCtx.fillRect(0, 0, 400, 400);
 
-            // 반죽 기공 및 시나몬 가루 점 표현 (고해상도 저장 대응)
+            // 반죽 기공 및 시나몬 가루 점 표현
             for (let i = 0; i < 960; i++) {
                 const x = Math.random() * 400;
                 const y = Math.random() * 400;
@@ -505,9 +504,751 @@
             }
         }
 
-        // 반응형 고해상도 캔버스 리사이즈
-// ... existing code ... -->
-        // 눈 내리고 소복이 눈 쌓인 겨울 밤 + 미니 트리 배경 위에 완성 쿠키 렌더링
+        // 반응형 고해상도 캔버스 리사이즈 (모바일 터치 좌표 오차 방지)
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            const displayWidth = rect.width || canvas.clientWidth || 340;
+            const dpr = Math.min(window.devicePixelRatio || 1, 3);
+            const targetPx = Math.round(displayWidth * dpr);
+
+            if (canvas.width !== targetPx || canvas.height !== targetPx) {
+                canvas.width = targetPx;
+                canvas.height = targetPx;
+            }
+            render();
+        }
+
+        if (typeof ResizeObserver !== 'undefined') {
+            const ro = new ResizeObserver(() => resizeCanvas());
+            ro.observe(canvas);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', resizeCanvas);
+
+        // ==========================================
+        // 4. 4가지 진저브레드 쿠키 경로(Path) 정의
+        // ==========================================
+        function buildCookiePath(targetCtx, shape, scale = 1) {
+            targetCtx.save();
+            targetCtx.scale(scale, scale);
+            targetCtx.beginPath();
+
+            if (shape === 'gingerman') {
+                // 1. 기본 진저맨 (통통하고 클래식한 진저브레드 맨)
+                const cx = 200;
+                targetCtx.moveTo(cx - 34, 128);
+                targetCtx.bezierCurveTo(cx - 64, 102, cx - 54, 42, cx, 42);
+                targetCtx.bezierCurveTo(cx + 54, 42, cx + 64, 102, cx + 34, 128);
+                // 오른팔
+                targetCtx.lineTo(318, 138);
+                targetCtx.bezierCurveTo(346, 144, 344, 184, 314, 186);
+                targetCtx.lineTo(256, 186);
+                // 오른쪽 몸통 & 오른다리
+                targetCtx.lineTo(266, 250);
+                targetCtx.lineTo(292, 326);
+                targetCtx.bezierCurveTo(302, 356, 260, 372, 246, 344);
+                targetCtx.lineTo(200, 274);
+                // 왼다리
+                targetCtx.lineTo(154, 344);
+                targetCtx.bezierCurveTo(140, 372, 98, 356, 108, 326);
+                targetCtx.lineTo(134, 250);
+                // 왼쪽 몸통 & 왼팔
+                targetCtx.lineTo(144, 186);
+                targetCtx.lineTo(86, 186);
+                targetCtx.bezierCurveTo(56, 184, 54, 144, 82, 138);
+                targetCtx.closePath();
+
+            } else if (shape === 'gingergirl') {
+                // 2. 치마 진저걸 (귀여운 플레어 스커트 실루엣)
+                const cx = 200;
+                targetCtx.moveTo(cx - 33, 126);
+                targetCtx.bezierCurveTo(cx - 63, 100, cx - 53, 42, cx, 42);
+                targetCtx.bezierCurveTo(cx + 53, 42, cx + 63, 100, cx + 33, 126);
+                // 오른팔
+                targetCtx.lineTo(314, 136);
+                targetCtx.bezierCurveTo(342, 142, 340, 180, 310, 182);
+                targetCtx.lineTo(252, 182);
+                // 퍼지는 치마 라인
+                targetCtx.quadraticCurveTo(272, 224, 304, 272);
+                targetCtx.quadraticCurveTo(278, 282, 254, 278);
+                // 오른다리
+                targetCtx.lineTo(268, 336);
+                targetCtx.bezierCurveTo(274, 362, 236, 370, 228, 344);
+                targetCtx.lineTo(212, 282);
+                targetCtx.lineTo(188, 282);
+                // 왼다리
+                targetCtx.lineTo(172, 344);
+                targetCtx.bezierCurveTo(164, 370, 126, 362, 132, 336);
+                targetCtx.lineTo(146, 278);
+                // 왼쪽 치마 라인
+                targetCtx.quadraticCurveTo(122, 282, 96, 272);
+                targetCtx.quadraticCurveTo(128, 224, 148, 182);
+                // 왼팔
+                targetCtx.lineTo(90, 182);
+                targetCtx.bezierCurveTo(60, 180, 58, 142, 86, 136);
+                targetCtx.closePath();
+
+            } else if (shape === 'gingercheer') {
+                // 3. 만세 진저맨 (두 팔을 위로 번쩍 들고 신난 포즈)
+                const cx = 200;
+                targetCtx.moveTo(cx - 34, 132);
+                targetCtx.bezierCurveTo(cx - 62, 106, cx - 52, 46, cx, 46);
+                targetCtx.bezierCurveTo(cx + 52, 46, cx + 62, 106, cx + 34, 132);
+                // 오른쪽 만세 팔
+                targetCtx.lineTo(296, 86);
+                targetCtx.bezierCurveTo(322, 68, 348, 100, 324, 122);
+                targetCtx.lineTo(256, 182);
+                // 오른쪽 몸통 & 오른다리
+                targetCtx.lineTo(266, 248);
+                targetCtx.lineTo(298, 324);
+                targetCtx.bezierCurveTo(310, 354, 268, 372, 252, 344);
+                targetCtx.lineTo(200, 274);
+                // 왼다리
+                targetCtx.lineTo(148, 344);
+                targetCtx.bezierCurveTo(132, 372, 90, 354, 102, 324);
+                targetCtx.lineTo(134, 248);
+                // 왼쪽 몸통 & 왼쪽 만세 팔
+                targetCtx.lineTo(144, 182);
+                targetCtx.lineTo(76, 122);
+                targetCtx.bezierCurveTo(52, 100, 78, 68, 104, 86);
+                targetCtx.closePath();
+
+            } else if (shape === 'gingerbear') {
+                // 4. 곰돌이 진저 (크고 동글동글한 양쪽 귀 + 통통한 볼과 배 + 뭉툭한 테디베어 팔다리)
+                const cx = 200;
+                // 왼쪽 볼 -> 왼쪽 곰돌이 귀
+                targetCtx.moveTo(cx - 42, 144);
+                targetCtx.bezierCurveTo(cx - 66, 132, cx - 72, 104, cx - 60, 86);
+                // 왼쪽 귀 (둥글고 큼직하게)
+                targetCtx.bezierCurveTo(cx - 86, 76, cx - 82, 36, cx - 50, 36);
+                targetCtx.bezierCurveTo(cx - 32, 36, cx - 22, 48, cx - 20, 58);
+                // 정수리
+                targetCtx.quadraticCurveTo(cx, 52, cx + 20, 58);
+                // 오른쪽 귀 (둥글고 큼직하게)
+                targetCtx.bezierCurveTo(cx + 22, 48, cx + 32, 36, cx + 50, 36);
+                targetCtx.bezierCurveTo(cx + 82, 36, cx + 86, 76, cx + 60, 86);
+                // 오른쪽 볼
+                targetCtx.bezierCurveTo(cx + 72, 104, cx + 66, 132, cx + 42, 144);
+                // 오른쪽 뭉툭한 팔
+                targetCtx.lineTo(304, 156);
+                targetCtx.bezierCurveTo(334, 162, 332, 206, 300, 208);
+                targetCtx.lineTo(264, 206);
+                // 통통한 오른쪽 배 & 짧은 오른다리
+                targetCtx.quadraticCurveTo(282, 242, 272, 276);
+                targetCtx.lineTo(286, 330);
+                targetCtx.bezierCurveTo(294, 360, 246, 372, 236, 342);
+                targetCtx.lineTo(216, 294);
+                // 가랑이
+                targetCtx.quadraticCurveTo(cx, 298, 184, 294);
+                // 짧은 왼다리
+                targetCtx.lineTo(164, 342);
+                targetCtx.bezierCurveTo(154, 372, 106, 360, 114, 330);
+                targetCtx.lineTo(128, 276);
+                // 통통한 왼쪽 배 & 왼쪽 뭉툭한 팔
+                targetCtx.quadraticCurveTo(118, 242, 136, 206);
+                targetCtx.lineTo(100, 208);
+                targetCtx.bezierCurveTo(68, 206, 66, 162, 96, 156);
+                targetCtx.closePath();
+            }
+
+            targetCtx.restore();
+        }
+
+        // 쿠키 반죽 입체 렌더링 (구운 색감, 그림자, 곰돌이 귀 음영 포함)
+        function drawBaseCookie(targetCtx, shape, scale = 1) {
+            targetCtx.save();
+
+            // 1. 도마 위 부드러운 쿠키 그림자
+            targetCtx.save();
+            targetCtx.shadowColor = 'rgba(42, 20, 6, 0.45)';
+            targetCtx.shadowBlur = 16 * scale;
+            targetCtx.shadowOffsetX = 4 * scale;
+            targetCtx.shadowOffsetY = 8 * scale;
+            buildCookiePath(targetCtx, shape, scale);
+            targetCtx.fillStyle = '#b96f32';
+            targetCtx.fill();
+            targetCtx.restore();
+
+            // 2. 쿠키 반죽 채우기 (시나몬 텍스처)
+            buildCookiePath(targetCtx, shape, scale);
+            targetCtx.fillStyle = cookiePattern || '#c57b3d';
+            targetCtx.fill();
+
+            // 3. 구운 테두리 입체 음영 & 하이라이트
+            targetCtx.save();
+            buildCookiePath(targetCtx, shape, scale);
+            targetCtx.clip();
+
+            // 안쪽 노릇노릇 구워진 그라데이션 테두리
+            targetCtx.strokeStyle = 'rgba(92, 43, 12, 0.45)';
+            targetCtx.lineWidth = 14 * scale;
+            targetCtx.stroke();
+
+            // 살짝 도톰한 반죽 위쪽 빛반사
+            targetCtx.strokeStyle = 'rgba(255, 224, 178, 0.28)';
+            targetCtx.lineWidth = 5 * scale;
+            targetCtx.stroke();
+
+            // 곰돌이 진저일 때 귀 안쪽 구워진 반죽 음영 추가
+            if (shape === 'gingerbear') {
+                targetCtx.fillStyle = 'rgba(110, 52, 16, 0.24)';
+                targetCtx.beginPath();
+                targetCtx.arc(150 * scale, 61 * scale, 13 * scale, 0, Math.PI * 2);
+                targetCtx.arc(250 * scale, 61 * scale, 13 * scale, 0, Math.PI * 2);
+                targetCtx.fill();
+            }
+            targetCtx.restore();
+
+            // 4. 깔끔한 외곽선 마무리
+            buildCookiePath(targetCtx, shape, scale);
+            targetCtx.strokeStyle = '#7c4014';
+            targetCtx.lineWidth = 2.5 * scale;
+            targetCtx.stroke();
+
+            targetCtx.restore();
+        }
+
+        // ==========================================
+        // 5. 슈가 아이싱 펜 그리기 (본색만 깔끔하게 칠해짐)
+        // ==========================================
+        function drawIcingStroke(targetCtx, stroke, scale = 1) {
+            if (!stroke || !stroke.points || stroke.points.length === 0) return;
+
+            targetCtx.save();
+            targetCtx.lineCap = 'round';
+            targetCtx.lineJoin = 'round';
+            targetCtx.strokeStyle = stroke.color;
+            targetCtx.fillStyle = stroke.color;
+            targetCtx.lineWidth = stroke.size * scale;
+
+            // 과자 위 살짝 도톰한 그림자만 은은하게 부여 (흰색 하이라이트 뭉침 없음)
+            targetCtx.shadowColor = 'rgba(56, 26, 10, 0.25)';
+            targetCtx.shadowBlur = 2.5 * scale;
+            targetCtx.shadowOffsetX = 0.8 * scale;
+            targetCtx.shadowOffsetY = 1.5 * scale;
+
+            const pts = stroke.points;
+            if (pts.length === 1) {
+                targetCtx.beginPath();
+                targetCtx.arc(pts[0].x * scale, pts[0].y * scale, (stroke.size * scale) / 2, 0, Math.PI * 2);
+                targetCtx.fill();
+            } else {
+                targetCtx.beginPath();
+                targetCtx.moveTo(pts[0].x * scale, pts[0].y * scale);
+                for (let i = 1; i < pts.length - 1; i++) {
+                    const xc = ((pts[i].x + pts[i + 1].x) / 2) * scale;
+                    const yc = ((pts[i].y + pts[i + 1].y) / 2) * scale;
+                    targetCtx.quadraticCurveTo(pts[i].x * scale, pts[i].y * scale, xc, yc);
+                }
+                const last = pts[pts.length - 1];
+                targetCtx.lineTo(last.x * scale, last.y * scale);
+                targetCtx.stroke();
+            }
+
+            targetCtx.restore();
+        }
+
+        // ==========================================
+        // 6. 9가지 크리스마스 토핑 렌더링 (버튼 아이콘 & 쿠키 동일)
+        // ==========================================
+        function drawStarPath(targetCtx, cx, cy, spikes, outerR, innerR) {
+            let rot = (Math.PI / 2) * 3;
+            let step = Math.PI / spikes;
+            targetCtx.beginPath();
+            targetCtx.moveTo(cx, cy - outerR);
+            for (let i = 0; i < spikes; i++) {
+                targetCtx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+                rot += step;
+                targetCtx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+                rot += step;
+            }
+            targetCtx.closePath();
+        }
+
+        function drawToppingItem(targetCtx, kind, x, y, rotation = 0, scale = 1) {
+            targetCtx.save();
+            targetCtx.translate(x * scale, y * scale);
+            targetCtx.rotate(rotation);
+            targetCtx.scale(scale, scale);
+
+            // 토핑 공통 그림자
+            targetCtx.shadowColor = 'rgba(42, 18, 5, 0.35)';
+            targetCtx.shadowBlur = 3;
+            targetCtx.shadowOffsetX = 1;
+            targetCtx.shadowOffsetY = 2;
+
+            if (kind === 'candy_red' || kind === 'candy_green') {
+                // 초코볼 (빨강 / 초록)
+                const baseCol = kind === 'candy_red' ? '#dc2626' : '#16a34a';
+                const lightCol = kind === 'candy_red' ? '#fca5a5' : '#86efac';
+                const grad = targetCtx.createRadialGradient(-3, -3, 1, 0, 0, 10);
+                grad.addColorStop(0, lightCol);
+                grad.addColorStop(0.35, baseCol);
+                grad.addColorStop(1, kind === 'candy_red' ? '#7f1d1d' : '#14532d');
+                targetCtx.fillStyle = grad;
+                targetCtx.beginPath();
+                targetCtx.arc(0, 0, 9.5, 0, Math.PI * 2);
+                targetCtx.fill();
+
+                // 반짝이 광택
+                targetCtx.shadowColor = 'transparent';
+                targetCtx.fillStyle = 'rgba(255,255,255,0.65)';
+                targetCtx.beginPath();
+                targetCtx.ellipse(-3, -3.5, 3, 1.8, -0.5, 0, Math.PI * 2);
+                targetCtx.fill();
+
+            } else if (kind === 'sprinkles') {
+                // 알록달록 별사탕가루 (레인보우 스프링클 알갱이)
+                const pieces = [
+                    { dx: -7, dy: -5, rot: 0.4, col: '#ef4444' },
+                    { dx: 5, dy: -7, rot: -0.6, col: '#facc15' },
+                    { dx: 0, dy: 0, rot: 0.9, col: '#38bdf8' },
+                    { dx: -6, dy: 6, rot: -0.3, col: '#22c55e' },
+                    { dx: 7, dy: 5, rot: 0.5, col: '#f472b6' },
+                    { dx: -1, dy: -8, rot: 0.1, col: '#ffffff' }
+                ];
+                pieces.forEach(p => {
+                    targetCtx.save();
+                    targetCtx.translate(p.dx, p.dy);
+                    targetCtx.rotate(p.rot);
+                    targetCtx.fillStyle = p.col;
+                    targetCtx.beginPath();
+                    targetCtx.roundRect(-4, -1.8, 8, 3.6, 1.8);
+                    targetCtx.fill();
+                    targetCtx.restore();
+                });
+
+            } else if (kind === 'ribbon') {
+                // 산타 리본
+                targetCtx.fillStyle = '#dc2626';
+                targetCtx.strokeStyle = '#991b1b';
+                targetCtx.lineWidth = 1.2;
+                // 왼쪽 날개
+                targetCtx.beginPath();
+                targetCtx.moveTo(0, 0);
+                targetCtx.bezierCurveTo(-14, -12, -16, 10, 0, 2);
+                targetCtx.fill();
+                targetCtx.stroke();
+                // 오른쪽 날개
+                targetCtx.beginPath();
+                targetCtx.moveTo(0, 0);
+                targetCtx.bezierCurveTo(14, -12, 16, 10, 0, 2);
+                targetCtx.fill();
+                targetCtx.stroke();
+                // 리본 끝자락
+                targetCtx.beginPath();
+                targetCtx.moveTo(-2, 2);
+                targetCtx.lineTo(-9, 13);
+                targetCtx.lineTo(-4, 12);
+                targetCtx.lineTo(0, 3);
+                targetCtx.lineTo(4, 12);
+                targetCtx.lineTo(9, 13);
+                targetCtx.lineTo(2, 2);
+                targetCtx.fill();
+                // 중앙 매듭
+                targetCtx.fillStyle = '#ef4444';
+                targetCtx.beginPath();
+                targetCtx.roundRect(-3.5, -3.5, 7, 7, 2.5);
+                targetCtx.fill();
+                targetCtx.stroke();
+
+            } else if (kind === 'star_sugar') {
+                // 황금 별사탕
+                const grad = targetCtx.createLinearGradient(-10, -10, 10, 10);
+                grad.addColorStop(0, '#fef08a');
+                grad.addColorStop(0.5, '#facc15');
+                grad.addColorStop(1, '#ca8a04');
+                targetCtx.fillStyle = grad;
+                drawStarPath(targetCtx, 0, 0, 5, 12, 5.5);
+                targetCtx.fill();
+                targetCtx.strokeStyle = '#a16207';
+                targetCtx.lineWidth = 1;
+                targetCtx.stroke();
+
+            } else if (kind === 'holly') {
+                // 크리스마스 열매잎 (초록 잎 2장 + 빨간 열매 3알)
+                targetCtx.fillStyle = '#15803d';
+                targetCtx.strokeStyle = '#14532d';
+                targetCtx.lineWidth = 1;
+                [-0.55, 0.55].forEach(ang => {
+                    targetCtx.save();
+                    targetCtx.rotate(ang);
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(0, 0);
+                    targetCtx.quadraticCurveTo(-7, -7, 0, -14);
+                    targetCtx.quadraticCurveTo(7, -7, 0, 0);
+                    targetCtx.fill();
+                    targetCtx.stroke();
+                    targetCtx.restore();
+                });
+                // 빨간 열매 3알
+                const berries = [{ x: 0, y: 1 }, { x: -3.5, y: 4.5 }, { x: 3.5, y: 4.5 }];
+                berries.forEach(b => {
+                    targetCtx.fillStyle = '#ef4444';
+                    targetCtx.beginPath();
+                    targetCtx.arc(b.x, b.y, 3.3, 0, Math.PI * 2);
+                    targetCtx.fill();
+                });
+
+            } else if (kind === 'cane') {
+                // 지팡이 사탕 (빨강-흰색 줄무늬)
+                targetCtx.save();
+                targetCtx.rotate(-0.35);
+                targetCtx.lineCap = 'round';
+                // 흰색 바탕
+                targetCtx.strokeStyle = '#ffffff';
+                targetCtx.lineWidth = 5.5;
+                targetCtx.beginPath();
+                targetCtx.moveTo(2, 11);
+                targetCtx.lineTo(2, -4);
+                targetCtx.arc(-3, -4, 5, 0, Math.PI, true);
+                targetCtx.stroke();
+
+                // 빨간 줄무늬
+                targetCtx.shadowColor = 'transparent';
+                targetCtx.strokeStyle = '#ef4444';
+                targetCtx.lineWidth = 5.5;
+                targetCtx.setLineDash([4, 4]);
+                targetCtx.beginPath();
+                targetCtx.moveTo(2, 11);
+                targetCtx.lineTo(2, -4);
+                targetCtx.arc(-3, -4, 5, 0, Math.PI, true);
+                targetCtx.stroke();
+                targetCtx.restore();
+
+            } else if (kind === 'heart_choco') {
+                // 핑크 하트 초콜릿
+                targetCtx.fillStyle = '#f472b6';
+                targetCtx.strokeStyle = '#db2777';
+                targetCtx.lineWidth = 1.2;
+                targetCtx.beginPath();
+                targetCtx.moveTo(0, 9);
+                targetCtx.bezierCurveTo(-13, 1, -13, -10, 0, -4);
+                targetCtx.bezierCurveTo(13, -10, 13, 1, 0, 9);
+                targetCtx.fill();
+                targetCtx.stroke();
+
+            } else if (kind === 'snowflake_sugar') {
+                // 하얀 눈결정
+                targetCtx.strokeStyle = '#ffffff';
+                targetCtx.lineWidth = 2.2;
+                targetCtx.lineCap = 'round';
+                for (let i = 0; i < 6; i++) {
+                    targetCtx.save();
+                    targetCtx.rotate((Math.PI / 3) * i);
+                    targetCtx.beginPath();
+                    targetCtx.moveTo(0, 0);
+                    targetCtx.lineTo(0, -11);
+                    targetCtx.moveTo(0, -6);
+                    targetCtx.lineTo(-3, -8.5);
+                    targetCtx.moveTo(0, -6);
+                    targetCtx.lineTo(3, -8.5);
+                    targetCtx.stroke();
+                    targetCtx.restore();
+                }
+            }
+
+            targetCtx.restore();
+        }
+
+        // ==========================================
+        // 7. 메인 캔버스 전체 렌더링 & 버튼 아이콘 미리보기
+        // ==========================================
+        function render() {
+            const scale = canvas.width / LOGICAL_SIZE;
+            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. 진저브레드 반죽 베이스 그리기
+            drawBaseCookie(ctx, currentShape, scale);
+
+            // 2. 쿠키 모양 안쪽으로 클리핑 후 아이싱 & 토핑 그리기
+            ctx.save();
+            buildCookiePath(ctx, currentShape, scale);
+            ctx.clip();
+
+            for (const act of actions) {
+                if (act.type === 'stroke') {
+                    drawIcingStroke(ctx, act, scale);
+                } else if (act.type === 'topping') {
+                    drawToppingItem(ctx, act.kind, act.x, act.y, act.rotation, scale);
+                }
+            }
+
+            if (currentStroke) {
+                drawIcingStroke(ctx, currentStroke, scale);
+            }
+
+            ctx.restore();
+            ctx.restore();
+        }
+
+        // 1단계 쿠키 모양 버튼 아이콘 미리보기 렌더링
+        function renderShapePreviews() {
+            document.querySelectorAll('.shape-preview').forEach(c => {
+                const sCtx = c.getContext('2d');
+                const shape = c.dataset.shape;
+                sCtx.clearRect(0, 0, c.width, c.height);
+                const previewScale = c.width / LOGICAL_SIZE;
+                drawBaseCookie(sCtx, shape, previewScale);
+            });
+        }
+
+        // 3단계 토핑 버튼 아이콘 미리보기 렌더링 (실제 올라가는 그래픽과 100% 동일)
+        function renderToppingPreviews() {
+            document.querySelectorAll('.topping-preview').forEach(c => {
+                const tCtx = c.getContext('2d');
+                const kind = c.dataset.kind;
+                tCtx.clearRect(0, 0, c.width, c.height);
+                drawToppingItem(tCtx, kind, 16, 16, 0, 2);
+            });
+        }
+
+        // ==========================================
+        // 8. 터치 / 마우스 좌표 변환 & 인터랙션
+        // ==========================================
+        function getCanvasPoint(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            const x = ((clientX - rect.left) / rect.width) * LOGICAL_SIZE;
+            const y = ((clientY - rect.top) / rect.height) * LOGICAL_SIZE;
+            return { x, y };
+        }
+
+        function handlePointerDown(e) {
+            if (e.cancelable) e.preventDefault();
+            resizeCanvas();
+            const pt = getCanvasPoint(e);
+
+            if (toolMode === 'topping' && selectedTopping) {
+                const rot = (Math.random() - 0.5) * 0.45;
+                actions.push({
+                    type: 'topping',
+                    kind: selectedTopping,
+                    x: pt.x,
+                    y: pt.y,
+                    rotation: rot
+                });
+                render();
+                return;
+            }
+
+            isDrawing = true;
+            currentStroke = {
+                type: 'stroke',
+                color: penColor,
+                size: penSize,
+                points: [pt]
+            };
+            render();
+        }
+
+        function handlePointerMove(e) {
+            if (!isDrawing || !currentStroke) return;
+            if (e.cancelable) e.preventDefault();
+            const pt = getCanvasPoint(e);
+            const lastPt = currentStroke.points[currentStroke.points.length - 1];
+            const dist = Math.hypot(pt.x - lastPt.x, pt.y - lastPt.y);
+            if (dist >= 1.5) {
+                currentStroke.points.push(pt);
+                render();
+            }
+        }
+
+        function handlePointerUp() {
+            if (isDrawing && currentStroke) {
+                actions.push(currentStroke);
+                currentStroke = null;
+                isDrawing = false;
+                render();
+            }
+        }
+
+        canvas.addEventListener('mousedown', handlePointerDown);
+        canvas.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+
+        canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+        canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
+        canvas.addEventListener('touchend', handlePointerUp);
+        canvas.addEventListener('touchcancel', handlePointerUp);
+
+        // ==========================================
+        // 9. UI 컨트롤 이벤트 바인딩
+        // ==========================================
+        // 쿠키 모양 선택
+        document.querySelectorAll('.shape-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.shape-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-amber-600/40', 'border-amber-400');
+                    b.classList.add('bg-white/5', 'border-transparent');
+                });
+                btn.classList.add('active', 'bg-amber-600/40', 'border-amber-400');
+                btn.classList.remove('bg-white/5', 'border-transparent');
+                currentShape = btn.dataset.shape;
+                render();
+            });
+        });
+
+        function switchToPenMode() {
+            toolMode = 'pen';
+            selectedTopping = null;
+            document.querySelectorAll('.topping-btn').forEach(b => {
+                b.classList.remove('border-emerald-400', 'bg-emerald-600/30');
+                b.classList.add('border-transparent', 'bg-white/5');
+            });
+            document.getElementById('topping-badge').classList.add('hidden');
+            const penBadge = document.getElementById('mode-pen-btn');
+            penBadge.className = 'text-xs bg-amber-500 text-stone-900 font-bold px-2.5 py-1 rounded-full shadow';
+            penBadge.textContent = '그리기 중 ✏️';
+            document.getElementById('mode-indicator').textContent = '✏️ 쿠키 위에 손가락이나 마우스로 그려보세요!';
+        }
+
+        document.getElementById('mode-pen-btn').addEventListener('click', switchToPenMode);
+
+        // 색상 팔레트 선택
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.color-btn').forEach(b => {
+                    b.classList.remove('border-amber-400', 'ring-2', 'ring-amber-300', 'scale-110');
+                    b.classList.add('border-white/40');
+                });
+                btn.classList.remove('border-white/40');
+                btn.classList.add('border-amber-400', 'ring-2', 'ring-amber-300', 'scale-110');
+                penColor = btn.dataset.color;
+                switchToPenMode();
+            });
+        });
+
+        // 펜 굵기 선택
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-amber-500/40', 'border', 'border-amber-400');
+                    b.classList.add('bg-white/10');
+                });
+                btn.classList.remove('bg-white/10');
+                btn.classList.add('active', 'bg-amber-500/40', 'border', 'border-amber-400');
+                penSize = Number(btn.dataset.size);
+                switchToPenMode();
+            });
+        });
+
+        // 토핑 선택
+        document.querySelectorAll('.topping-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const kind = btn.dataset.topping;
+                if (toolMode === 'topping' && selectedTopping === kind) {
+                    switchToPenMode();
+                    return;
+                }
+                document.querySelectorAll('.topping-btn').forEach(b => {
+                    b.classList.remove('border-emerald-400', 'bg-emerald-600/30');
+                    b.classList.add('border-transparent', 'bg-white/5');
+                });
+                btn.classList.remove('border-transparent', 'bg-white/5');
+                btn.classList.add('border-emerald-400', 'bg-emerald-600/30');
+
+                toolMode = 'topping';
+                selectedTopping = kind;
+                document.getElementById('topping-badge').classList.remove('hidden');
+                const penBadge = document.getElementById('mode-pen-btn');
+                penBadge.className = 'text-xs bg-white/15 text-amber-200 px-2.5 py-1 rounded-full';
+                penBadge.textContent = '펜으로 전환';
+                document.getElementById('mode-indicator').textContent = '✨ 쿠키 위 원하는 곳을 톡톡 터치해 토핑을 얹으세요!';
+            });
+        });
+
+        // 되돌리기 & 싹 지우기
+        document.getElementById('undo-btn').addEventListener('click', () => {
+            if (actions.length === 0) {
+                showToast('되돌릴 작업이 없어요!');
+                return;
+            }
+            actions.pop();
+            render();
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            if (actions.length === 0) return;
+            actions = [];
+            render();
+            showToast('쿠키를 깨끗하게 비웠어요 🧹');
+        });
+
+        // ==========================================
+        // 10. 완성 카드 이미지 렌더링 (눈 내리는 겨울 밤 + 미니 트리 배경, 쿠키 최상단)
+        // ==========================================
+        function drawMiniChristmasTree(sCtx, tx, ty, tScale) {
+            sCtx.save();
+            sCtx.translate(tx, ty);
+            sCtx.scale(tScale, tScale);
+
+            // 나무 기둥
+            sCtx.fillStyle = '#4a2511';
+            sCtx.fillRect(-8, 0, 16, 22);
+
+            // 3단 초록 잎 + 눈 덮인 끝자락
+            const tiers = [
+                { yTop: -42, yBot: 4, halfW: 44 },
+                { yTop: -76, yBot: -28, halfW: 35 },
+                { yTop: -108, yBot: -62, halfW: 25 }
+            ];
+
+            tiers.forEach(tier => {
+                // 초록 트리 삼각형
+                sCtx.fillStyle = '#14532d';
+                sCtx.beginPath();
+                sCtx.moveTo(0, tier.yTop);
+                sCtx.lineTo(tier.halfW, tier.yBot);
+                sCtx.lineTo(-tier.halfW, tier.yBot);
+                sCtx.closePath();
+                sCtx.fill();
+
+                // 트리에 소복이 쌓인 하얀 눈 표현
+                sCtx.fillStyle = 'rgba(241, 245, 249, 0.9)';
+                sCtx.beginPath();
+                sCtx.moveTo(0, tier.yTop);
+                sCtx.lineTo(tier.halfW * 0.55, tier.yTop + (tier.yBot - tier.yTop) * 0.45);
+                sCtx.quadraticCurveTo(0, tier.yTop + (tier.yBot - tier.yTop) * 0.32, -tier.halfW * 0.55, tier.yTop + (tier.yBot - tier.yTop) * 0.45);
+                sCtx.closePath();
+                sCtx.fill();
+            });
+
+            // 꼭대기 작은 황금 별
+            sCtx.fillStyle = '#facc15';
+            drawStarPath(sCtx, 0, -114, 5, 9, 4);
+            sCtx.fill();
+
+            // 알록달록 작은 오너먼트 전구
+            const bulbs = [
+                { x: -16, y: -12, col: '#ef4444' },
+                { x: 18, y: -8, col: '#facc15' },
+                { x: 0, y: -22, col: '#38bdf8' },
+                { x: -12, y: -44, col: '#f472b6' },
+                { x: 13, y: -40, col: '#ef4444' },
+                { x: 0, y: -72, col: '#facc15' }
+            ];
+            bulbs.forEach(b => {
+                sCtx.fillStyle = b.col;
+                sCtx.beginPath();
+                sCtx.arc(b.x, b.y, 4.2, 0, Math.PI * 2);
+                sCtx.fill();
+            });
+
+            sCtx.restore();
+        }
+
         function renderWinterSceneCookieCanvas(size) {
             const sceneCanvas = document.createElement('canvas');
             sceneCanvas.width = size;
@@ -516,13 +1257,160 @@
             sCtx.imageSmoothingEnabled = true;
             sCtx.imageSmoothingQuality = 'high';
 
-            // 1. 깊은 크리스마스 밤하늘 그라데이션
-// ... existing code ... -->
-        // 미리보기 이미지 최신화 (위아래 문구 없이 고해상도 1800x1800 쿠키 장면만 생성)
+            // 1. 깊은 크리스마스 겨울 밤하늘 그라데이션
+            const skyGrad = sCtx.createLinearGradient(0, 0, 0, size);
+            skyGrad.addColorStop(0, '#071124');
+            skyGrad.addColorStop(0.55, '#112544');
+            skyGrad.addColorStop(1, '#1e3a5f');
+            sCtx.fillStyle = skyGrad;
+            sCtx.fillRect(0, 0, size, size);
+
+            // 2. 밤하늘 반짝이는 별들
+            for (let i = 0; i < 65; i++) {
+                const sx = ((i * 197 + 43) % 1000) / 1000 * size;
+                const sy = ((i * 131 + 29) % 1000) / 1000 * (size * 0.68);
+                const sr = ((i % 3) + 1.2) * (size / 900);
+                sCtx.fillStyle = i % 4 === 0 ? 'rgba(254, 240, 138, 0.9)' : 'rgba(255, 255, 255, 0.8)';
+                sCtx.beginPath();
+                sCtx.arc(sx, sy, sr, 0, Math.PI * 2);
+                sCtx.fill();
+            }
+
+            // 3. 따뜻한 보름달 & 달빛 후광
+            const moonX = size * 0.8;
+            const moonY = size * 0.17;
+            const moonR = size * 0.068;
+            const moonGlow = sCtx.createRadialGradient(moonX, moonY, moonR * 0.4, moonX, moonY, moonR * 2.8);
+            moonGlow.addColorStop(0, 'rgba(254, 249, 195, 0.55)');
+            moonGlow.addColorStop(1, 'rgba(254, 249, 195, 0)');
+            sCtx.fillStyle = moonGlow;
+            sCtx.beginPath();
+            sCtx.arc(moonX, moonY, moonR * 2.8, 0, Math.PI * 2);
+            sCtx.fill();
+
+            sCtx.fillStyle = '#fef9c3';
+            sCtx.beginPath();
+            sCtx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+            sCtx.fill();
+
+            // 4. 뒤쪽 설원 언덕
+            sCtx.fillStyle = '#cbd5e1';
+            sCtx.beginPath();
+            sCtx.moveTo(0, size * 0.74);
+            sCtx.quadraticCurveTo(size * 0.3, size * 0.66, size * 0.65, size * 0.75);
+            sCtx.quadraticCurveTo(size * 0.85, size * 0.79, size, size * 0.72);
+            sCtx.lineTo(size, size);
+            sCtx.lineTo(0, size);
+            sCtx.closePath();
+            sCtx.fill();
+
+            // 5. 양쪽 미니 크리스마스 트리 4그루
+            const unit = size / 700;
+            drawMiniChristmasTree(sCtx, size * 0.12, size * 0.73, 1.05 * unit);
+            drawMiniChristmasTree(sCtx, size * 0.24, size * 0.75, 0.78 * unit);
+            drawMiniChristmasTree(sCtx, size * 0.88, size * 0.73, 1.08 * unit);
+            drawMiniChristmasTree(sCtx, size * 0.76, size * 0.75, 0.8 * unit);
+
+            // 6. 앞쪽 소복이 눈 쌓인 언덕
+            const frontSnowGrad = sCtx.createLinearGradient(0, size * 0.74, 0, size);
+            frontSnowGrad.addColorStop(0, '#ffffff');
+            frontSnowGrad.addColorStop(1, '#e2e8f0');
+            sCtx.fillStyle = frontSnowGrad;
+            sCtx.beginPath();
+            sCtx.moveTo(0, size * 0.78);
+            sCtx.quadraticCurveTo(size * 0.5, size * 0.71, size, size * 0.79);
+            sCtx.lineTo(size, size);
+            sCtx.lineTo(0, size);
+            sCtx.closePath();
+            sCtx.fill();
+
+            // 7. 배경에 흩날리는 눈송이 (쿠키보다 뒤쪽 레이어에 배치해 쿠키를 가리지 않음)
+            for (let i = 0; i < 85; i++) {
+                const fx = ((i * 251 + 19) % 1000) / 1000 * size;
+                const fy = ((i * 173 + 61) % 1000) / 1000 * size;
+                const fr = ((i % 4) + 1.8) * (size / 750);
+                sCtx.fillStyle = i % 3 === 0 ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.5)';
+                sCtx.beginPath();
+                sCtx.arc(fx, fy, fr, 0, Math.PI * 2);
+                sCtx.fill();
+            }
+
+            // 8. 눈밭 위 쿠키 그림자
+            sCtx.save();
+            sCtx.fillStyle = 'rgba(15, 23, 42, 0.22)';
+            sCtx.beginPath();
+            sCtx.ellipse(size * 0.5, size * 0.86, size * 0.25, size * 0.042, 0, 0, Math.PI * 2);
+            sCtx.fill();
+            sCtx.restore();
+
+            // 9. 가장 맨 위 레이어에 완성된 진저브레드 쿠키 렌더링
+            const cookieScale = (size * 0.84) / LOGICAL_SIZE;
+            const offset = (size - LOGICAL_SIZE * cookieScale) / 2;
+
+            sCtx.save();
+            sCtx.translate(offset, offset - size * 0.01);
+
+            drawBaseCookie(sCtx, currentShape, cookieScale);
+
+            sCtx.save();
+            buildCookiePath(sCtx, currentShape, cookieScale);
+            sCtx.clip();
+
+            for (const act of actions) {
+                if (act.type === 'stroke') {
+                    drawIcingStroke(sCtx, act, cookieScale);
+                } else if (act.type === 'topping') {
+                    drawToppingItem(sCtx, act.kind, act.x, act.y, act.rotation, cookieScale);
+                }
+            }
+            sCtx.restore();
+            sCtx.restore();
+
+            return sceneCanvas;
+        }
+
+        const resultModal = document.getElementById('result-modal');
+        const finalCookieImg = document.getElementById('final-cookie-img');
+
         function updateFinalPreviewImage() {
             const sceneCanvas = renderWinterSceneCookieCanvas(1800);
             finalCookieImg.src = sceneCanvas.toDataURL('image/png');
         }
 
         document.getElementById('finish-btn').addEventListener('click', () => {
-// ... existing code ... -->
+            updateFinalPreviewImage();
+            resultModal.classList.remove('hidden');
+            resultModal.classList.add('flex');
+            playJingle();
+        });
+
+        function closeResultModal() {
+            resultModal.classList.add('hidden');
+            resultModal.classList.remove('flex');
+        }
+
+        document.getElementById('close-modal-btn').addEventListener('click', closeResultModal);
+        document.getElementById('keep-decorating-btn').addEventListener('click', closeResultModal);
+        resultModal.addEventListener('click', (e) => {
+            if (e.target === resultModal) closeResultModal();
+        });
+
+        // ==========================================
+        // 11. 앱 초기화 실행
+        // ==========================================
+        function initApp() {
+            createSnowflakes();
+            createCookieTexture();
+            renderShapePreviews();
+            renderToppingPreviews();
+            resizeCanvas();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
